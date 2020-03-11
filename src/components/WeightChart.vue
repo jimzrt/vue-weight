@@ -1,14 +1,32 @@
 <template>
   <div>
-    
-    <v-chart ref="chart" :options="polar" />
+    <b-spinner v-if="loading" label="Spinning"></b-spinner>
+
+    <b-card-text>
+      <div v-if="chartData.length > 0">
+        <v-chart v-if="mode === 'chart'" ref="chart" :options="chartOptions" />
+        <b-table v-else striped hover :items="chartData" :fields="fields" sticky-header small>
+          <!-- A custom formatted column -->
+          <template v-slot:cell(0)="data">{{ data.value | formatDateObject }}</template>
+        </b-table>
+      </div>
+      <div class="mt-5" v-else>Keine Messung vorhanden</div>
+    </b-card-text>
+
+    <!-- <div class="chart-placeholder" v-else>
+        <p>no data...</p>
+    </div>-->
   </div>
 </template>
 <script>
-import ECharts from "vue-echarts";
+import { isoToDate, sortedIndex } from "../common/helpers.js";
+import { Host } from "../common/consts.js";
+import ECharts from 'vue-echarts';
 import "echarts/lib/chart/line";
 import "echarts/lib/component/title";
 import "echarts/lib/component/tooltip";
+import "echarts/lib/component/grid";
+import "echarts/lib/component/dataZoom";
 
 export default {
   name: "WeigthChart",
@@ -18,6 +36,84 @@ export default {
   },
   components: {
     "v-chart": ECharts
+  },
+  computed: {
+    chartOptions: function() {
+      return {
+        title: {
+          text: this.name,
+          left: "center",
+          show: false
+        },
+        dataZoom: [
+          // {
+          //   type: "inside",
+          //   // start: 0,
+          //   // end: 100
+          // },
+          {
+            type: "slider",
+            filterMode: "none",
+            start: 50,
+            end: 100
+            // start: 0,
+            // end: 100,
+            // handleIcon:
+            //   "M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z",
+            // handleSize: "80%",
+            // handleStyle: {
+            //   color: "#fff",
+            //   shadowBlur: 3,
+            //   shadowColor: "rgba(0, 0, 0, 0.6)",
+            //   shadowOffsetX: 2,
+            //   shadowOffsetY: 2
+            // }
+          }
+        ],
+        grid: {
+          bottom: 80
+        },
+        tooltip: {
+          trigger: "axis",
+          axisPointer: {
+            type: "cross",
+            animation: false,
+            label: {
+              backgroundColor: "#505765"
+            }
+          }
+        },
+        xAxis: {
+          type: "time"
+        },
+        yAxis: {
+          type: "value"
+        },
+        series: [
+          {
+            data: this.chartData,
+            type: "line",
+
+            //animationDuration: 100,
+            smooth: true,
+            lineStyle: {
+              width: 3,
+              color: "#00a2ff"
+            }
+          }
+        ],
+        animationDuration: 1000
+      };
+    },
+    tableData: function() {
+      let that = this;
+      return this.chartData.map(function(x) {
+        return {
+          Datum: that.$options.filters.formatDateObject(x[0]),
+          "Gewicht in kg": x[1]
+        };
+      });
+    }
   },
   data() {
     // let data = [];
@@ -41,55 +137,67 @@ export default {
     // }
 
     return {
+      mode: "chart",
       chartData: [],
       sectionData: [],
-      polar: {
-        title: {
-          text: this.name
-        },
-        tooltip: {
-          trigger: "axis"
-        },
-        xAxis: {
-          type: "time"
-        },
-        yAxis: {
-          type: "value"
-        },
-        series: [
-          {
-            data: null,
-            type: "line"
-          }
-        ]
-      }
+      loading: true,
+      items: [
+        { age: 40, first_name: "Dickerson", last_name: "Macdonald" },
+        { age: 21, first_name: "Larsen", last_name: "Shaw" },
+        { age: 89, first_name: "Geneva", last_name: "Wilson" },
+        { age: 38, first_name: "Jami", last_name: "Carney" }
+      ],
+      fields: [
+        // A virtual column that doesn't exist in items
+        //'index',
+        // A column that needs custom formatting
+        { key: "0", label: "Datum" },
+        { key: "1", label: "Gewicht in kg" }
+      ]
     };
   },
   mounted() {
+    console.log("mounted weightchart");
     //let now = new Date()
     //let dayStr = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-');
-    this.$refs.chart.showLoading();
     this.$http
       .get(
-        "http://localhost:8383/weight?cmd=getSectionData&sectionId=" +
-          this.sectionId
+        `http://${Host.ADDRESS}:${Host.PORT}/weight?cmd=getSectionData&sectionId=${this.sectionId}`
       )
       .then(response => {
         this.sectionData = response.data;
         for (const section of this.sectionData) {
-          this.chartData.push([new Date(section.date), section.weight]);
+          this.chartData.push([isoToDate(section.date), section.weight]);
         }
       })
       .catch(error => {
         console.log(error);
         this.errored = true;
       })
-      .finally(() => this.$refs.chart.hideLoading());
+      .finally(() => (this.loading = false));
 
     //this.chartData.push([new Date(), 100]);
-    this.polar.series[0].data = this.chartData;
+    // this.chartOptions.series[0].data = this.chartData;
 
-    //this.polar.title.text = "hallo";
+    //this.chartOptions.title.text = "hallo";
+  },
+  methods: {
+    addEvent(time, value) {
+      console.log("new event: " + time + " - " + value);
+      let newDate = isoToDate(time);
+      let newIndex = sortedIndex(this.chartData, newDate);
+      this.chartData.splice(newIndex, 0, [newDate, value]);
+      //  this.chartData.push([isoToDate(time), value]);
+    },
+    changeView(mode) {
+      this.mode = mode;
+    },
+    resize() {
+      console.log("resize boy");
+      if (this.mode === "chart" && this.$refs.chart) {
+         this.$refs.chart.resize();
+      }
+    }
   }
 };
 </script>
