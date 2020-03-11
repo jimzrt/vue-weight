@@ -14,6 +14,8 @@
     "core-js": "^3.6.4",
     "date-fns": "^2.10.0",
     "echarts": "^4.6.0",
+    "intersection-observer": "^0.7.0",
+    "regenerator-runtime": "^0.13.3",
     "vue": "^2.6.11",
     "vue-echarts": "^5.0.0-beta.0",
     "vue-lodash": "^2.1.2",
@@ -44,6 +46,7 @@
   },
   "browserslist": [
     "> 1%",
-    "last 2 versions"
+    "last 2 versions",
+    "ie >= 11"
   ]
 }

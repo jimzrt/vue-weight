@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="p-3">
     <div v-if="loading">Loading...</div>
     <div v-else>
-            <div class="text-center">
+      <div class="text-center">
         <p>Warte auf neue Werte...</p>
         <b-spinner type="grow" label="Spinning"></b-spinner>
       </div>
@@ -15,13 +15,22 @@
               :key="value.id"
               class="d-flex justify-content-between align-items-center py-0 pr-0"
             >
-              {{value.date | formatDate}}: {{value.weight}}kg
+              <b-badge variant="secondary" pill>
+                <p class="mb-2 pr-2">
+                  <b-icon-clock style="width: 18px; height: 18px;" shift-v="-2"></b-icon-clock>
+                  {{value.date | formatDate}} Uhr
+                </p>
+              </b-badge>
+              <b-badge variant="info" pill>
+                <p class="m-2">{{value.weight.toFixed(2)}}kg</p>
+              </b-badge>
+
               <b-button-group>
-                <b-button @click="addEvent(index, value.id)" variant="info">
-                  <b-icon-plus style="width: 24px; height: 24px;"></b-icon-plus>
+                <b-button @click="addEvent(index, value.id)" variant="success">
+                  <b-icon-plus class="mr-1"></b-icon-plus>Hinzufügen
                 </b-button>
                 <b-button @click="removeEvent(index, value.id)" variant="danger">
-                  <b-icon-x-octagon style="width: 24px; height: 24px;"></b-icon-x-octagon>
+                  <b-icon-x-octagon class="mr-1"></b-icon-x-octagon>Löschen
                 </b-button>
               </b-button-group>
             </b-list-group-item>
@@ -35,7 +44,7 @@
 </template>
 
 <script>
-import { BIconPlus, BIconXOctagon } from "bootstrap-vue";
+import { BIconPlus, BIconXOctagon, BIconClock } from "bootstrap-vue";
 import { Host } from "../common/consts.js";
 
 export default {
@@ -46,14 +55,15 @@ export default {
   },
   components: {
     BIconPlus,
-    BIconXOctagon
+    BIconXOctagon,
+    BIconClock
   },
   data() {
     return {
       polling: null,
       loading: true,
       currentDateInMs: Date.now(),
-      unknownValues: [],
+      unknownValues: []
     };
   },
   mounted() {
@@ -99,7 +109,7 @@ export default {
                   response.data.date,
                   response.data.weight
                 );
-                this.$emit("done")
+                this.$emit("done");
               });
           }
         })

@@ -27,7 +27,7 @@
                 <template v-slot:header>
                   <h3 class="mb-0">{{section.name}}</h3>
                 </template>
-                <b-tabs content-class="mt-1" fill >
+                <b-tabs content-class="mt-1" fill>
                   <b-tab title="Diagramm" @click="changeView('chart', section.id)"></b-tab>
                   <b-tab title="Tabelle" @click="changeView('table', section.id)"></b-tab>
                   <WeigthChart
@@ -66,7 +66,7 @@
             </b-col>
           </b-row>
 
-          <b-modal id="modal-center" scrollable centered hide-footer>
+          <b-modal id="modal-center" scrollable centered hide-footer size="lg">
             <template v-slot:modal-title>Neue Messung für {{currentName}}</template>
             <AddMeasurement
               :sectionId="currentSection"

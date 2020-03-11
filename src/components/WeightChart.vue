@@ -4,11 +4,18 @@
 
     <b-card-text>
       <div v-if="chartData.length > 0">
-        <v-chart v-if="mode === 'chart'" ref="chart" :options="chartOptions" />
-        <b-table v-else striped hover :items="chartData" :fields="fields" sticky-header small>
-          <!-- A custom formatted column -->
-          <template v-slot:cell(0)="data">{{ data.value | formatDateObject }}</template>
-        </b-table>
+        <transition name="fade" mode="out-in">
+          <v-chart v-if="mode === 'chart'" ref="chart" :options="chartOptions" />
+          <b-table v-else striped hover :items="chartData" :fields="fields" sticky-header small>
+            <template v-slot:table-busy>
+              <div class="text-center text-danger my-2">
+                <b-spinner class="align-middle"></b-spinner>
+                <strong>Loading...</strong>
+              </div>
+            </template>
+            <template v-slot:cell(0)="data">{{ data.value | formatDateObject }}</template>
+          </b-table>
+        </transition>
       </div>
       <div class="mt-5" v-else>Keine Messung vorhanden</div>
     </b-card-text>
@@ -21,7 +28,7 @@
 <script>
 import { isoToDate, sortedIndex } from "../common/helpers.js";
 import { Host } from "../common/consts.js";
-import ECharts from 'vue-echarts';
+import ECharts from "vue-echarts";
 import "echarts/lib/chart/line";
 import "echarts/lib/component/title";
 import "echarts/lib/component/tooltip";
@@ -54,8 +61,9 @@ export default {
           {
             type: "slider",
             filterMode: "none",
-            start: 50,
-            end: 100
+            start: 70,
+            end: 100,
+            realtime: true
             // start: 0,
             // end: 100,
             // handleIcon:
@@ -84,7 +92,8 @@ export default {
           }
         },
         xAxis: {
-          type: "time"
+          type: "time",
+          boundaryGap: false
         },
         yAxis: {
           type: "value"
@@ -95,7 +104,7 @@ export default {
             type: "line",
 
             //animationDuration: 100,
-            smooth: true,
+            smooth: false,
             lineStyle: {
               width: 3,
               color: "#00a2ff"
@@ -141,12 +150,6 @@ export default {
       chartData: [],
       sectionData: [],
       loading: true,
-      items: [
-        { age: 40, first_name: "Dickerson", last_name: "Macdonald" },
-        { age: 21, first_name: "Larsen", last_name: "Shaw" },
-        { age: 89, first_name: "Geneva", last_name: "Wilson" },
-        { age: 38, first_name: "Jami", last_name: "Carney" }
-      ],
       fields: [
         // A virtual column that doesn't exist in items
         //'index',
@@ -195,7 +198,7 @@ export default {
     resize() {
       console.log("resize boy");
       if (this.mode === "chart" && this.$refs.chart) {
-         this.$refs.chart.resize();
+        this.$refs.chart.resize();
       }
     }
   }
@@ -204,6 +207,15 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+.fade-enter-active,
+.fade-leave-active {
+  transition: all 0.1s ease;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0.5;
+  transform: translateX(10px);
+}
+
 /* h3 {
   margin: 40px 0 0;
 }

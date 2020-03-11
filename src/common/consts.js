@@ -1,4 +1,4 @@
 export const Host = Object.freeze({
-    ADDRESS: "192.168.0.162",
-    PORT: 8383
+    ADDRESS: "localhost",
+    PORT: 8080
 });

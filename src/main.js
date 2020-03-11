@@ -1,3 +1,7 @@
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
+import 'intersection-observer' // Optional
+
 import Vue from 'vue'
 import App from './App.vue'
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
