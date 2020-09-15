@@ -34,6 +34,8 @@ import "echarts/lib/component/title";
 import "echarts/lib/component/tooltip";
 import "echarts/lib/component/grid";
 import "echarts/lib/component/dataZoom";
+import "echarts/lib/component/dataZoomSlider"
+
 
 export default {
   name: "WeigthChart",
@@ -181,8 +183,6 @@ export default {
 
     //this.chartData.push([new Date(), 100]);
     // this.chartOptions.series[0].data = this.chartData;
-
-    //this.chartOptions.title.text = "hallo";
   },
   methods: {
     addEvent(time, value) {
@@ -215,7 +215,10 @@ export default {
   opacity: 0.5;
   transform: translateX(10px);
 }
-
+.echarts {
+  width: 100%;
+  height: 300px;
+}
 /* h3 {
   margin: 40px 0 0;
 }

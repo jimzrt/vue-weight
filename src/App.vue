@@ -37,21 +37,6 @@
                   />
                 </b-tabs>
 
-                <!-- <transition mode="out-in" name="slide-fade">
-                <keep-alive>
-                  <component
-                    :is="dataComponent[selectedComponent]"
-                    :sectionId="section.id"
-                    :name="section.name"
-                  ></component>
-                </keep-alive>
-                </transition>-->
-
-                <!-- <WeigthChart
-                :ref="`chart${section.id}`"
-                :sectionId="section.id"
-                :name="section.name"
-                />-->
                 <template v-slot:footer>
                   <b-button
                     v-b-modal.modal-center
@@ -60,10 +45,13 @@
                 </template>
               </b-card>
 
-              <!-- <span class="lighten">
-        <span v-html="currency.symbol"></span>{{ currency.rate_float}}
-              </span>-->
             </b-col>
+          </b-row>
+          <b-row class="mb-5">
+            <b-col>
+             <ScatterChart
+                  />
+                  </b-col>
           </b-row>
 
           <b-modal id="modal-center" scrollable centered hide-footer size="lg">
@@ -85,6 +73,7 @@
 <script>
 import WeigthChart from "./components/WeightChart.vue";
 import AddMeasurement from "./components/AddMeasurement.vue";
+import ScatterChart from "./components/ScatterChart.vue";
 import { Host } from "./common/consts.js";
 
 //import HelloWorld from './components/HelloWorld.vue'
@@ -93,7 +82,8 @@ export default {
   name: "App",
   components: {
     AddMeasurement,
-    WeigthChart
+    WeigthChart,
+    ScatterChart
   },
   data() {
     return {
@@ -170,8 +160,5 @@ export default {
   width: 100%;
   height: 500px;
 }
-.echarts {
-  width: 100%;
-  height: 300px;
-}
+
 </style>
